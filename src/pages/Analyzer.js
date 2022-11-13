@@ -1,21 +1,33 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
-class Analyzer extends React.Component {
-    construcor(props) {
-    //   super(props) {
-    //     // this.state={
-          
-    //     // }
-    //   }
-    }
+function HomeButton() {
 
-    render() {
-        return (
-            <header class="App-header">
-                <h1>Hi</h1>
-            </header>
-        );
-    }
-  }
+    const navigate = useNavigate();
+    return(
+        <button onClick={ () => navigate('/')}>
+            Home
+        </button>
+    )
+}
 
-export default Analyzer;
+function Filters() {
+    
+}
+
+function TopBar(props) {
+    return(
+        <div>
+            <HomeButton />
+            <h1>ReviewZ</h1>
+        </div>
+    );
+}
+
+
+
+export default function Analyzer() {
+    return(
+        <TopBar />
+    );
+}
