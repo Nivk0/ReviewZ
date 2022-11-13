@@ -1,31 +1,27 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
-class Home extends React.Component {
-    construcor(props) {
-    //   super(props) {
-    //     // this.state={
-          
-    //     // }
-    //   }
-    }
-
-    render() {
-        return (
-            <header class="App-header">
-                <h1>ReviewZ</h1>
-                <p>
-                    Get real time feedback on how your product is doing.
-                </p>
-                <form>
-                    <label>
-                            Past your Amazon url below:
-                    </label>
-                    <input type="text" name="name"/>
-                    <input type="submit" value="Submit"/>
-                </form>
-            </header>
-        );
-    }
-  }
-
-export default Home;
+export default function Home()
+{
+    const navigate = useNavigate();
+    
+    return (
+        <header class="App-header">
+            <h1>ReviewZ</h1>
+            <p>
+                Get real time feedback on how your product is doing.
+            </p>
+            <form>
+                <label>
+                        Paste your Amazon url below:
+                </label>
+                <input type="text" name="name"/>
+                <input 
+                    type="submit" 
+                    value="Submit" 
+                    onClick={() => navigate('/analyzer')}
+                />
+            </form>
+        </header>
+    );
+};
