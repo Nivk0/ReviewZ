@@ -98,7 +98,7 @@ function TopBar() {
 
 function Graph() {
     const onClick = event => (
-        fetch('http://127.0.0.1:5000/get_image')
+        fetch('/get_image')
           .then(function(data){
           document.getElementById('progress').textContent = "Loading";
           return data.blob();

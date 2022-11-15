@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
-// import test from '../test.jpg'
 
 
 function Body()
@@ -13,7 +12,7 @@ function Body()
         // const url = (inputRef.current.value);
         const url = { content };
 
-        const response = fetch("http://127.0.0.1:5000/url", {
+        const response = fetch("/url", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -36,7 +35,6 @@ function Body()
     return (
         <header class="App-header">
             <h1>ReviewZ</h1>
-            <img src={test} />
             <p>
                 Get real time feedback on how your product is doing.
             </p>
