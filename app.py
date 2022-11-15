@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, url_for
+from flask import Flask, send_from_directory, request, url_for, send_file
 from flask_restful import reqparse, Api
 from flask_cors import CORS, cross_origin
 from api.HelloApiHandler import HelloApiHandler
@@ -18,6 +18,16 @@ import cleantext
 app = Flask(__name__, static_folder='frontend/build', static_url_path='')
 CORS(app)
 api = Api(app)
+
+@app.route('/')
+@cross_origin()
+def serve():
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/get_image')
+def get_image():
+    filename = 'analyzed_histogram.png'
+    return send_file(filename, mimetype='image/jpg')
 
 @app.route("/api", methods=['GET'])
 @cross_origin()
@@ -45,7 +55,7 @@ def setURL():
             
     def printPage(item):
         #url=request.data
-        url =  ('https://www.amazon.com/crocs-Unisex-Classic-Black-Women/product-reviews/B0014BYHJE/ref=cm_cr_arp_d_paging_btm_next_'+str(item)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item))
+        url =  ('https://www.amazon.com/KOORUI-FreeSyncTM-Compatible-Ultra-Thin-24E4/dp/B09TTDRXNS/ref=cm_cr_arp_d_paging_btm_next_'+str(item)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item))
         webpage = requests.get(url, headers=headers)
         soup = BeautifulSoup(webpage.content, "html.parser")
         reviews = soup.find_all('div', {'data-hook': 'review'})
@@ -56,56 +66,56 @@ def setURL():
             c.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
             d.append(splitter[1].split('on')[-1])
 
-    def printPageAu(item2):
+    # def printPageAu(item2):
 
-        url2 =  ('https://www.amazon.com.' + 'au' + '/crocs-Unisex-Classic-Black-Women/product-reviews/B0014BYHJE/ref=cm_cr_arp_d_paging_btm_next_'+str(item2)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item2))
-        webpage2 = requests.get(url2, headers=headers)
-        soup2 = BeautifulSoup(webpage2.content, "html.parser")
-        reviews2 = soup2.find_all('div', {'data-hook': 'review'})
+    #     url2 =  ('https://www.amazon.com.' + 'au' + '/crocs-Unisex-Classic-Black-Women/product-reviews/B0014BYHJE/ref=cm_cr_arp_d_paging_btm_next_'+str(item2)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item2))
+    #     webpage2 = requests.get(url2, headers=headers)
+    #     soup2 = BeautifulSoup(webpage2.content, "html.parser")
+    #     reviews2 = soup2.find_all('div', {'data-hook': 'review'})
         
-        for i in reviews2:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text,no_emoji=True))
-            splitter2 = i.find('span', {'data-hook' : 'review-date'}).text.split('in')
-            c.append(cleantext.clean(splitter2[1].split('on')[0],no_emoji=True))
-            d.append(splitter2[1].split('on')[1])
+    #     for i in reviews2:
+    #         b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text,no_emoji=True))
+    #         splitter2 = i.find('span', {'data-hook' : 'review-date'}).text.split('in')
+    #         c.append(cleantext.clean(splitter2[1].split('on')[0],no_emoji=True))
+    #         d.append(splitter2[1].split('on')[1])
             
-    def printPageCA(item3):
+    # def printPageCA(item3):
 
-        url3 =  ('https://www.amazon.'+'ca'+'/crocs-Unisex-Classic-Black-Women/product-reviews/B0014BYHJE/ref=cm_cr_arp_d_paging_btm_next_'+str(item3)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item3))
-        webpage3 = requests.get(url3, headers=headers)
-        soup3 = BeautifulSoup(webpage3.content, "html.parser")
-        reviews3 = soup3.find_all('div', {'data-hook': 'review'})
+    #     url3 =  ('https://www.amazon.'+'ca'+'/crocs-Unisex-Classic-Black-Women/product-reviews/B0014BYHJE/ref=cm_cr_arp_d_paging_btm_next_'+str(item3)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item3))
+    #     webpage3 = requests.get(url3, headers=headers)
+    #     soup3 = BeautifulSoup(webpage3.content, "html.parser")
+    #     reviews3 = soup3.find_all('div', {'data-hook': 'review'})
         
-        for i in reviews3:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text,no_emoji=True))
-            splitter3 = i.find('span', {'data-hook' : 'review-date'}).text.split('in')
-            c.append(cleantext.clean(splitter3[1].split('on')[0],no_emoji=True))
-            d.append(splitter3[1].split('on')[1])
+    #     for i in reviews3:
+    #         b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text,no_emoji=True))
+    #         splitter3 = i.find('span', {'data-hook' : 'review-date'}).text.split('in')
+    #         c.append(cleantext.clean(splitter3[1].split('on')[0],no_emoji=True))
+    #         d.append(splitter3[1].split('on')[1])
             
-    def printPageUK(item4):
+    # def printPageUK(item4):
 
-        url4 =  ('https://www.amazon.'+'in'+'/crocs-Unisex-Classic-Black-Women/product-reviews/B0014BYHJE/ref=cm_cr_arp_d_paging_btm_next_'+str(item4)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item4))
-        webpage4 = requests.get(url4, headers=headers)
-        soup4 = BeautifulSoup(webpage4.content, "html.parser")
-        reviews4 = soup4.find_all('div', {'data-hook': 'review'})
+    #     url4 =  ('https://www.amazon.'+'in'+'/crocs-Unisex-Classic-Black-Women/product-reviews/B0014BYHJE/ref=cm_cr_arp_d_paging_btm_next_'+str(item4)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item4))
+    #     webpage4 = requests.get(url4, headers=headers)
+    #     soup4 = BeautifulSoup(webpage4.content, "html.parser")
+    #     reviews4 = soup4.find_all('div', {'data-hook': 'review'})
         
-        for i in reviews4:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text,no_emoji=True))
-            splitter4 = i.find('span', {'data-hook' : 'review-date'}).text.split('in')
-            c.append(cleantext.clean(splitter4[1].split('on')[0],no_emoji=True))
-            d.append(splitter4[1].split('on')[1])
+    #     for i in reviews4:
+    #         b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text,no_emoji=True))
+    #         splitter4 = i.find('span', {'data-hook' : 'review-date'}).text.split('in')
+    #         c.append(cleantext.clean(splitter4[1].split('on')[0],no_emoji=True))
+    #         d.append(splitter4[1].split('on')[1])
 
     for page in range(50):
         b.append(printPage(page+1))
         
-    for page2 in range(10):
-        b.append(printPageAu(page2+1))
+    # for page2 in range(10):
+    #     b.append(printPageAu(page2+1))
 
-    for page3 in range(50):
-        b.append(printPageCA(page3+1))
+    # for page3 in range(50):
+    #     b.append(printPageCA(page3+1))
 
-    for page4 in range(20):
-        b.append(printPageUK(page4+1))
+    # for page4 in range(20):
+    #     b.append(printPageUK(page4+1))
         
     with open('tutorial.csv', 'w', newline ='') as csvfile:
         fieldnames = ['number', 'entry', 'location', 'date']
@@ -113,14 +123,16 @@ def setURL():
         thewriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
         thewriter.writeheader()
         
-        print('DEBUG:',len(c))
-        print('DEBUG:',len(b))
-        print('DEBUG',len(d))
+        #DEBUG
+        # print('DEBUG:',len(c))
+        # print('DEBUG:',len(b))
+        # print('DEBUG',len(d))
         for count in c:
             num+=1
             
-            print('DEBUG:',num)
-            print('DEBUG',b[num-1])
+            #DEBUG
+            # print('DEBUG:',num)
+            # print('DEBUG',b[num-1])
             c[num-1]
             thewriter.writerow({'number':num, 'entry':b[num-1], 'location':count, 'date':d[num-1]  })
             
@@ -156,17 +168,34 @@ def setURL():
     #             and kv[n][1] is the value to be filtered for
     def createHistogram(csv_file:str,kv:list=[]):
 
+        print(csv_file)
         analyzed_data = pd.read_csv(csv_file)
         #create a filtered dataframe
         
-        analyzed_data = filterDataFrame(analyzed_data,kv)
+        print("TEST")
+        
+        for i in analyzed_data:
+            print(str(analyzed_data[i]))
+        
+        # analyzed_data = filterDataFrame(analyzed_data,kv)
+        
+        # print("TEST")
+        
+        # for i in analyzed_data:
+        #     print(str(analyzed_data[i]))
         
         colors = ["#d80a37","#a01e56","#e1c193","#ffd036","#ffe14d",
                 "#ccff4e","#93d10e","#6bd40e","#2fc737","#2db33f"]
         
         #create historgram
         #custom_bins = [-1.00,-0.8,-0.60,-0.40,-0.20,0.00,0.20,0.40,0.60,0.80,1.00]
+        
+        print("TEST")
+    
+        
         n,m,patches = plt.hist(analyzed_data['Polarity'],bins = custom_bins)
+        
+        print("Anything: ")
         
         #color the gram
         for i in range(len(n)):
@@ -182,7 +211,7 @@ def setURL():
 
         out_file_name = 'analyzed_histogram'
         plt.savefig(out_file_name)
-        plt.show()
+        #DEBUG: plt.show()
         
         #this might work idk
         #return send_file(out_file_name,mimetype='image/gif')
@@ -196,7 +225,7 @@ def setURL():
         analyzed_data = pd.read_csv(csv_file)
         
         #filter the dataframe
-        analyzed_data = filterDataFrame(analyzed_data,kv)
+        # analyzed_data = filterDataFrame(analyzed_data,kv)
         
         #create the heat map
         map_data = {'Polarity':analyzed_data['Polarity'],
@@ -238,13 +267,5 @@ def setURL():
 
     analyzeCSV('',[['location','india']])
 
-        
-
-@app.route('/')
-@cross_origin()
-def serve():
-    return send_from_directory(app.static_folder, 'index.html')
-
 if __name__ == '__main__':
     app.run()
-
