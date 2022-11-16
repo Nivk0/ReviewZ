@@ -10,22 +10,16 @@ function Body()
 
     const handleClick = event => {
         // const url = (inputRef.current.value);
-        const url = { content };
 
-        const response = fetch("/url", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: url,
-        })
-        .then((response) => {
-            return response.json();
-        })
-        .then((reponse) => {
-            alert(response)
-        })
-        alert(url);
+        const urlpath = String(content);
+
+        const response = fetch("http://127.0.0.1:5000/url", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({url: urlpath}), //http request ?url=urlpath
+        });
+    
+        alert(urlpath);
 
         navigate('/analyzer')
     };

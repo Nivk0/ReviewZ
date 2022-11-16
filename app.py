@@ -29,12 +29,17 @@ def get_image():
     filename = 'analyzed_histogram.png'
     return send_file(filename, mimetype='image/jpg')
 
-@app.route("/api", methods=['GET'])
+@app.route("/api", methods=['POST'])
 @cross_origin()
-def index():
-    return {
-        'message': "some bull"
-    }
+def bull():
+    url = request.json["url"]
+    urls = url.split("/dp/")
+    url = urls[0] + "/product-reviews/" + urls[1]
+    urls = url.split("/ref=")
+    urls[0] = urls[0] + "/ref=cm_cr_arp_d_paging_btm_next_"
+    urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
+    print(urls[0] + str(1) + urls[1] + str(1))
+    
 
 @app.route("/url", methods=['GET','POST'])
 @cross_origin()
@@ -54,7 +59,12 @@ def setURL():
     app = Flask(__name__, static_folder='public')
             
     def printPage(item):
-        #url=request.data
+        url = request.json["url"]
+        urls = url.split("/dp/")
+        url = urls[0] + "/product-reviews/" + urls[1]
+        urls = url.split("/ref=")
+        urls[0] = urls[0] + "/ref=cm_cr_arp_d_paging_btm_next_"
+        urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
         url =  ('https://www.amazon.com/KOORUI-FreeSyncTM-Compatible-Ultra-Thin-24E4/dp/B09TTDRXNS/ref=cm_cr_arp_d_paging_btm_next_'+str(item)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item))
         webpage = requests.get(url, headers=headers)
         soup = BeautifulSoup(webpage.content, "html.parser")

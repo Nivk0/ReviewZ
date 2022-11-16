@@ -32,32 +32,43 @@ alert(getMessage.data.message)
 
 
 export default function Bull(){
+  const [content, setContent] = useState("")
 
-  const onClick = event => (
-    fetch('http://127.0.0.1:5000/get_image?type=1')
-      .then(function(data){
-      document.getElementById('progress').textContent = "Loading";
-      return data.blob();
-    })
-    .then(blob => {
-      var img = URL.createObjectURL(blob);
-      // const dd = imagesrc
-      // $('#progress').text("");
-      // $('img').attr('src', dd);
-      document.getElementById('progress').textContent = "Loaded"
-      document.getElementById('test').setAttribute('src', img);
-    })
-  );
+  const handleClick = event => {
+    // const url = (inputRef.current.value);
+    const urlpath = String(content);
+
+    const response = fetch("http://127.0.0.1:5000/api", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({url: urlpath}), //http request ?url=urlpath
+    });
+
+    alert(urlpath);
+};
 
   return (
     <header class="App-header">
-      {/* <div><Sup /></div> */}
-      <button id="btn" onClick={onClick} >Get Image</button>
-      <img src="" id="test" alt=""  width="500px" />
-      <div id="progress"></div>
-      <script></script>
-    </header>
-    
+            <h1>Bull</h1>
+            <p>
+                Get real time feedback on how your product is doing.
+            </p>
+            <form>
+                <label>
+                        Paste your Amazon url below:
+                </label>
+                <input 
+                    type="text" 
+                    id="url_submit" 
+                    // ref={inputRef}
+                    value = {content}
+                    onChange = {e => setContent(e.target.value)} 
+                />
+                <button onClick={handleClick}> 
+                    Submit 
+                </button>
+            </form> 
+        </header>
   );
 
 }
