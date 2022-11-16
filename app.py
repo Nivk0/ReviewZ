@@ -65,7 +65,7 @@ def setURL():
         urls = url.split("/ref=")
         urls[0] = urls[0] + "/ref=cm_cr_arp_d_paging_btm_next_"
         urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  ('https://www.amazon.com/KOORUI-FreeSyncTM-Compatible-Ultra-Thin-24E4/dp/B09TTDRXNS/ref=cm_cr_arp_d_paging_btm_next_'+str(item)+'?ie=UTF8&reviewerType=all_reviews&pageNumber=' + str(item))
+        url =  (urls[0] +str(item)+ urls[1] + str(item))
         webpage = requests.get(url, headers=headers)
         soup = BeautifulSoup(webpage.content, "html.parser")
         reviews = soup.find_all('div', {'data-hook': 'review'})

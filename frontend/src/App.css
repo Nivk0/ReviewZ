@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;1,300&display=swap');
+
+
 .App {
   text-align: center;
 }
@@ -24,6 +27,102 @@
   color: white;
 }
 
+.App-home 
+{
+  background-color: #1B263B;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+  .App-home h1 
+  {
+    /* background-color: #ffffff50; */
+    font-family: 'Josefin Sans', light;
+    font-weight: 400;
+    font-size: 80px;
+    line-height: 80px;
+    color: #E0E1DD;
+  }
+
+  .App-home p
+  {
+    /* background-color: #ffffff50; */
+    position: relative;
+    top: -2em;
+
+    font-family: 'Josefin Sans';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 35px;
+    line-height: 35px;
+    color: #ffffff;
+  }
+
+  .App-home label
+  {
+    font-family: 'Josefin Sans';
+    font-style: light;
+    font-weight: 300;
+    font-size: 30px;
+    line-height: 30px;
+    color: #FFFFFF;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    padding-top: 0;
+    padding-bottom: 0.24em;
+  }
+
+  .App-home div
+  {
+    width: 694px;
+    height: 44px;
+
+    display:inline-flex;
+    align-self: center;
+  }
+
+    .App-home div input
+    {
+      width: calc(100% - 46px);
+      height: 41px;
+      background-color: #FFFFFF;
+
+      border-top-left-radius: 50px;
+      border-bottom-left-radius: 50px;
+      border: 2px solid #415A77
+    }
+
+    .App-home div input::placeholder
+    {
+      padding: 0 10em 0 1em;
+    }
+
+    .App-home div button 
+    {
+      width: 46px;
+      height: 47px;
+      background-color: #FFFFFF;
+
+      border-top-right-radius: 50px;
+      border-bottom-right-radius: 50px;
+      border: 2px solid #415A77
+    }
+
+      .App-home div button .iconify-magnify
+      {
+        content: url('https://api.iconify.design/mdi/magnify.svg?color=%23415a77&width=24&height=24');
+        vertical-align: middle;
+        
+        position: relative;
+        left: -2px;
+      }
+
 .App-link {
   color: #61dafb;
 }
@@ -41,3 +140,48 @@
   background-color: aqua;
   color: blue;
 }
+
+.App-analyzer
+{
+  background-color: #1B263B;
+  min-height: 100vh;
+}
+
+  .App-analyzer .App-topbar
+  {
+    position: absolute;
+    width: 100%;
+    height: 92px;
+    top: 0;
+
+    background: #415A77;
+
+    display:inline-flex;
+    /* flex-direction: row;
+    align-items: center;
+    justify-content: center; */
+  }
+
+    .App-analyzer .App-topbar h1
+    {
+      font-family: 'Josefin Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 45px;
+      line-height: 45px;
+
+      margin-left: calc(50% - 156px);
+      color: #E0E1DD;
+    }
+
+    .App-analyzer .App-topbar button
+    {
+      margin-left: 15px;
+      background-color: transparent;
+      border: 0;
+    }
+
+      .App-analyzer .App-topbar button span
+      {
+        content: url('https://api.iconify.design/ant-design/home-filled.svg?color=%23e0e1dd&width=54&height=58');
+      }

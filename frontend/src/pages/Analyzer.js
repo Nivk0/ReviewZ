@@ -5,7 +5,7 @@ function HomeButton() {
     const navigate = useNavigate();
     return(
         <button onClick={ () => navigate('/')}>
-            Home
+            <span class="iconify-home" />
         </button>
     )
 }
@@ -89,7 +89,7 @@ function Filters() {
 
 function TopBar() {
     return(
-        <div>
+        <div class="App-topbar">
             <HomeButton />
             <h1>ReviewZ</h1>
         </div>
@@ -148,10 +148,10 @@ function GraphOption() {
 
 export default function Analyzer() {
     return (
-        <div>
+        <header class="App-analyzer">
             <TopBar />
             <Filters />
             <Graph />
-        </div> 
+        </header> 
     );
 }
