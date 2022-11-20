@@ -7,6 +7,7 @@ from flask import Flask, jsonify, request, send_from_directory, send_file, redir
 import pandas as pd
 import numpy as np
 import seaborn as sns
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 plt.style.use('fivethirtyeight')
 import requests
@@ -26,8 +27,12 @@ def serve():
 
 @app.route('/get_image')
 def get_image():
-    filename = 'analyzed_histogram.png'
-    return send_file(filename, mimetype='image/jpg')
+    filename = 'analyzed_histogram.svg'
+    return send_file(filename, mimetype='image/svg')
+
+@app.route('/image/<svgFile>')
+def serve_image(svgFile):
+    return send_file(svgFile, mimetype='image/svg+xml')
 
 @app.route("/api", methods=['POST'])
 @cross_origin()
@@ -45,7 +50,7 @@ def bull():
 @cross_origin()
 def setURL():
     
-
+    mpl.use("svg")
     b = []
     c = [] 
     d = []     
@@ -202,7 +207,6 @@ def setURL():
         
         print("TEST")
     
-        
         n,m,patches = plt.hist(analyzed_data['Polarity'],bins = custom_bins)
         
         print("Anything: ")

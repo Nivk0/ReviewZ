@@ -79,7 +79,7 @@ function Month() {
 
 function Filters() {
     return(
-        <div>
+        <div class="filters">
             <h1>Filters</h1>
             <Location />
             <Month />
@@ -96,33 +96,6 @@ function TopBar() {
     );
 }
 
-function Graph() {
-    const onClick = event => (
-        fetch('/get_image')
-          .then(function(data){
-          document.getElementById('progress').textContent = "Loading";
-          return data.blob();
-        })
-        .then(blob => {
-          var img = URL.createObjectURL(blob);
-          // const dd = imagesrc
-          // $('#progress').text("");
-          // $('img').attr('src', dd);
-          document.getElementById('progress').textContent = "Loaded"
-          document.getElementById('test').setAttribute('src', img);
-        })
-      );
-
-    return(
-        <div>
-            <button id="btn" onClick={onClick} >Get Image</button>
-            <img src="" id="test" alt=""  width="500px" />
-            <div id="progress"></div>
-            <GraphOption />
-        </div>
-    )
-}
-
 function GraphOption() {
     const [graphOption, setGraphOption] = useState('Histogram');
     let graphOptions = [];
@@ -133,25 +106,67 @@ function GraphOption() {
         setGraphOption(event.target.value);
     };
     return(
-        <div>
+        <div class="graph-options">
+            <h1>Graph Options</h1>
             <form>
                 <label>
+                    <p>Histogram</p>
+                    <input type="radio" name="Graphs" value="analyzed_histogram.svg" id="HIST" />
+                </label>
+                <label>
+                    <p>Heat Map</p>
+                    <input type="radio" name="Graphs" value="analyzed_heatmap.svg" id="HM" />
+                </label>
+                
+                {/* <label>
                     Graph Option
                     <select value={graphOption} onChange={handleChange}>
                         { graphOptions }
                     </select>
-                </label>
+                </label> */}
             </form>
         </div>
     );
 }
 
 export default function Analyzer() {
+    const SVG = (() => {
+        if(document.getElementById('HIST').checked) {
+            alert(document.getElementById('HIST').value)
+            return document.getElementById('HIST').value
+        }
+        else {
+            alert(document.getElementById('HM').value)
+            return document.getElementById('HM').value
+        }
+    });
+
+    const onClick = event => (
+        fetch('http://127.0.0.1:5000/image/' + SVG)
+          .then(function(data){
+          document.getElementById('progress').textContent = "Loading";
+          return data.blob();
+        })
+        .then(blob => {
+          var img = URL.createObjectURL(blob);
+          // const dd = imagesrc
+          // $('#progress').text("");
+          // $('img').attr('src', dd);
+          document.getElementById('progress').textContent = "Loaded"
+          document.getElementById('graph').setAttribute('src', img);
+        })
+    );
+
     return (
         <header class="App-analyzer">
             <TopBar />
-            <Filters />
-            <Graph />
+            <div class="App-sidebar">
+                <GraphOption />
+                <Filters />
+                <button id="btn" onClick={onClick} >Get Image</button>
+            </div>
+            <img src="" id="graph" alt=""  width="500px" />
+            <div id="progress"></div>
         </header> 
     );
 }
