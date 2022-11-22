@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, request, url_for, send_file
+from flask import Flask, send_from_directory, request, url_for, send_file, Response
 from flask_restful import reqparse, Api
 from flask_cors import CORS, cross_origin
 from api.HelloApiHandler import HelloApiHandler
@@ -15,6 +15,9 @@ from bs4 import BeautifulSoup
 import csv
 import array as arr
 import cleantext
+import os
+from os.path import exists
+
 
 app = Flask(__name__, static_folder='frontend/build', static_url_path='')
 CORS(app)
@@ -28,7 +31,7 @@ def serve():
 @app.route('/get_image')
 def get_image():
     filename = 'analyzed_histogram.svg'
-    return send_file(filename, mimetype='image/svg')
+    return send_file(filename, mimetype='image/svg+xml')
 
 @app.route('/image/<svgFile>')
 def serve_image(svgFile):
@@ -44,6 +47,19 @@ def bull():
     urls[0] = urls[0] + "/ref=cm_cr_arp_d_paging_btm_next_"
     urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
     print(urls[0] + str(1) + urls[1] + str(1))
+
+@app.route("/remove", methods=['GET'])
+@cross_origin()
+def remove():
+    if (exists("tutorial.csv")):
+            os.remove("tutorial.csv")
+    if (exists("analyzed_data.csv")):
+            os.remove("analyzed_data.csv")
+    if (exists("/analyzed_histogram.svg")):
+            os.remove("/analyzed_histogram.svg")
+    if (exists("/analyzed_heatmap.svg")):
+            os.remove("/analyzed_heatmap.svg")
+    return Response("Success", status=200, mimetype='application/text')
     
 
 @app.route("/url", methods=['GET','POST'])
@@ -279,7 +295,7 @@ def setURL():
         
         return result_heatmap
 
-    analyzeCSV('',[['location','india']])
+    plt.close()
 
 if __name__ == '__main__':
     app.run()

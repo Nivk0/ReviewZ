@@ -33,25 +33,29 @@ alert(getMessage.data.message)
 
 export default function Bull(){
   const [content, setContent] = useState("")
+  const [data, setData] = useState("")
+  const [loading, setLoading] = useState(true)
 
   const handleClick = event => {
     // const url = (inputRef.current.value);
     const urlpath = String(content);
 
-    const response = fetch("http://127.0.0.1:5000/api", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({url: urlpath}), //http request ?url=urlpath
-    });
-
     alert(urlpath);
 };
+
+  axios("http://127.0.0.1:5000/remove").then(response => {
+    setData(response.data)
+  }).catch(error => {
+    console.error("Error removing: ", error);
+  }).finally(() => {
+    setLoading(false);
+  })
 
   return (
     <header class="App-header">
             <h1>Bull</h1>
-            <p>
-                Get real time feedback on how your product is doing.
+            <p id="para">
+              {data}
             </p>
             <form>
                 <label>

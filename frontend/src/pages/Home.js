@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 function Body()
@@ -12,6 +13,10 @@ function Body()
         // const url = (inputRef.current.value);
 
         const urlpath = String(content);
+
+        axios("http://127.0.0.1:5000/remove").catch(error => {
+            console.error("Error removing: ", error);
+        })
 
         const response = fetch("http://127.0.0.1:5000/url", {
           method: "POST",

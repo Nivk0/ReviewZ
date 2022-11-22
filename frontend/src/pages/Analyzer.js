@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function HomeButton() {
     const navigate = useNavigate();
@@ -96,14 +97,11 @@ function TopBar() {
     );
 }
 
-function GraphOption() {
-    const [graphOption, setGraphOption] = useState('Histogram');
-    let graphOptions = [];
-    graphOptions.push(<option value={'Histogram'}>{'Histogram'}</option>)
-    graphOptions.push(<option value={'Heat Map'}>{'Heat Map'}</option>)
+let filename = "";
 
+function GraphOption() {
     const handleChange = event => {
-        setGraphOption(event.target.value);
+        filename = 'http://127.0.0.1:5000/image/' + event.target.value;
     };
     return(
         <div class="graph-options">
@@ -111,51 +109,29 @@ function GraphOption() {
             <form>
                 <label>
                     <p>Histogram</p>
-                    <input type="radio" name="Graphs" value="analyzed_histogram.svg" id="HIST" />
+                    <input type="radio" name="Graphs" id="HIST" value="analyzed_histogram.svg" onChange={handleChange} />
                 </label>
                 <label>
                     <p>Heat Map</p>
-                    <input type="radio" name="Graphs" value="analyzed_heatmap.svg" id="HM" />
+                    <input type="radio" name="Graphs" id="HM" value="analyzed_heatmap.svg" onChange={handleChange} />
                 </label>
-                
-                {/* <label>
-                    Graph Option
-                    <select value={graphOption} onChange={handleChange}>
-                        { graphOptions }
-                    </select>
-                </label> */}
             </form>
         </div>
     );
 }
 
 export default function Analyzer() {
-    const SVG = (() => {
-        if(document.getElementById('HIST').checked) {
-            alert(document.getElementById('HIST').value)
-            return document.getElementById('HIST').value
-        }
-        else {
-            alert(document.getElementById('HM').value)
-            return document.getElementById('HM').value
-        }
-    });
 
-    const onClick = event => (
-        fetch('http://127.0.0.1:5000/image/' + SVG)
+    const onClick = event => {
+        fetch(filename) ///* + SVG */)
           .then(function(data){
-          document.getElementById('progress').textContent = "Loading";
           return data.blob();
         })
         .then(blob => {
           var img = URL.createObjectURL(blob);
-          // const dd = imagesrc
-          // $('#progress').text("");
-          // $('img').attr('src', dd);
-          document.getElementById('progress').textContent = "Loaded"
           document.getElementById('graph').setAttribute('src', img);
         })
-    );
+    };
 
     return (
         <header class="App-analyzer">
@@ -165,8 +141,10 @@ export default function Analyzer() {
                 <Filters />
                 <button id="btn" onClick={onClick} >Get Image</button>
             </div>
-            <img src="" id="graph" alt=""  width="500px" />
-            <div id="progress"></div>
+            <div class="App-main">
+                <img src="" id="graph" alt="" width="500px"/>
+                <p id="para"></p>
+            </div>
         </header> 
     );
 }
