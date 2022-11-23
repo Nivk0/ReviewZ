@@ -257,6 +257,92 @@
       color: #FFFFFF;
     }
 
+    .App-analyzer .App-sidebar .graph-choices
+    {
+      display: inline-flex;
+      width: 100%;
+      height: 70px;
+      align-items: center;
+      border-bottom: 1px solid #415A77;
+    }
+
+    .App-analyzer .App-sidebar p
+    {
+      font-family: 'Josefin Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 25px;
+      line-height: 25px;
+      color: #FFFFFF;
+    }
+
+    .App-analyzer .App-sidebar svg ~ input
+    {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .App-analyzer .App-sidebar input[type="radio"] {
+      position: relative;
+      left: 20px;
+      opacity: 0;
+    }
+    
+    .App-analyzer .App-sidebar input[type="radio"] ~ svg {
+      -webkit-transition: all 0.1s;
+      transition: all 0.1s;
+    }
+    
+    .App-analyzer .App-sidebar input + svg {
+      cursor: pointer;
+    }
+  
+    .App-analyzer .App-sidebar .checked {
+      opacity: 0;
+    }
+
+    input[id="HIST"]:hover ~ .unchecked,
+    input[id="HIST"]:checked ~ .unchecked,
+    input[id="HIST"]:focus ~ .unchecked,
+    input[id="HM"]:hover ~ .unchecked,
+    input[id="HM"]:checked ~ .unchecked,
+    input[id="HM"]:focus ~ .unchecked{
+      opacity: 0;
+    }
+
+    input[id="HIST"]:hover ~ .checked,
+    input[id="HIST"]:checked ~ .checked,
+    input[id="HIST"]:focus ~ .checked,
+    input[id="HM"]:hover ~ .checked,
+    input[id="HM"]:checked ~ .checked,
+    input[id="HM"]:focus ~ .checked{
+      opacity: 1;
+    }
+
+    .App-analyzer .App-sidebar .checked
+    {
+      position: relative;
+      left: -24px;
+    }
+
+    .App-analyzer .App-sidebar .btn-apply
+    {
+      width: 143px;
+      height: 42px;
+
+      background: #FFFFFF;
+      border-radius: 50px;
+      border: 0;
+
+      font-family: 'Josefin Sans';
+      font-style: normal;
+      font-weight: 400;
+      font-size: 25px;
+      line-height: 25px;
+      color: #415A77;
+    }
+
 .App-analyzer .App-main
 {
   position: absolute;
