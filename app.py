@@ -295,6 +295,8 @@ def setURL():
         
         return result_heatmap
 
+    analyzeCSV('',[['location','india']])
+
     plt.close()
 
 if __name__ == '__main__':
