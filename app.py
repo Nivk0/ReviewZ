@@ -55,10 +55,10 @@ def remove():
             os.remove("tutorial.csv")
     if (exists("analyzed_data.csv")):
             os.remove("analyzed_data.csv")
-    if (exists("/analyzed_histogram.svg")):
-            os.remove("/analyzed_histogram.svg")
-    if (exists("/analyzed_heatmap.svg")):
-            os.remove("/analyzed_heatmap.svg")
+    if (exists("analyzed_histogram.svg")):
+            os.remove("analyzed_histogram.svg")
+    if (exists("analyzed_heatmap.svg")):
+            os.remove("analyzed_heatmap.svg")
     return Response("Success", status=200, mimetype='application/text')
     
 
