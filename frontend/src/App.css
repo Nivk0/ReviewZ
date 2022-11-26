@@ -192,6 +192,9 @@
   height: calc(100vh - 92px);
   width: 325px;
   bottom: 0;
+  
+  overflow-x: hidden;
+  overflow-y: auto;
 
   display: flex;
   flex-direction: column;
@@ -274,13 +277,30 @@
       font-size: 25px;
       line-height: 25px;
       color: #FFFFFF;
+
+      position: relative;
+      left: 2em;
     }
 
-    .App-analyzer .App-sidebar svg ~ input
+    .App-analyzer .App-sidebar .unchecked,
+    .App-analyzer .App-sidebar input
     {
       display: flex;
       justify-content: center;
       align-items: center;
+
+      position: relative;
+      left: 6em;
+    }
+
+    .App-analyzer .App-sidebar .checked
+    {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      position: relative;
+      left: calc(6em - 24px);
     }
 
     .App-analyzer .App-sidebar input[type="radio"] {
@@ -320,12 +340,6 @@
       opacity: 1;
     }
 
-    .App-analyzer .App-sidebar .checked
-    {
-      position: relative;
-      left: -24px;
-    }
-
     .App-analyzer .App-sidebar .btn-apply
     {
       width: 143px;
@@ -343,6 +357,24 @@
       color: #415A77;
     }
 
+    .App-analyzer .App-sidebar button
+    {
+      background-color: transparent;
+      border: 0;
+    }
+
+      .App-analyzer .App-sidebar button .iconify-dropdown
+      {
+        content: url('https://api.iconify.design/material-symbols/arrow-drop-down.svg?color=white&width=70&height=70&rotate=0deg');
+
+      }
+
+      .App-analyzer .App-sidebar button .iconify-dropdown-180
+      {
+        content: url('https://api.iconify.design/material-symbols/arrow-drop-down.svg?color=white&width=70&height=70&rotate=180deg');
+      }
+
+
 .App-analyzer .App-main
 {
   position: absolute;
@@ -355,4 +387,93 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.App-analyzer .App-main img
+  {
+    width: 75%;
+  }
+
+@media screen and (max-width: 850px){
+  .App-home div 
+  {
+    width: 80vw;
+  }
+
+  .App-home p 
+  {
+    width: 90vw;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 650px){
+  .App-analyzer .App-sidebar
+  {
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 40vh;
+    width: 100vw;
+  }
+
+  .App-analyzer .App-sidebar p
+  {
+    left: 25vw;
+  }
+
+  .App-analyzer .App-sidebar .unchecked,
+  .App-analyzer .App-sidebar input
+  {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    left: calc(75vw);
+  }
+
+  .App-analyzer .App-sidebar .checked
+  {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    left: calc(75vw);
+  }
+
+  .App-analyzer .App-main
+  {
+    position: absolute;
+    top: 92px;
+    left: 0px;
+    height: calc(60vh - 92px);
+    width: 100vw;
+  } 
+
+  .App-analyzer .App-main img
+  {
+    width: 300px;
+  }
+}
+
+@media screen and (max-width: 500px){
+  .App-home p 
+  {
+    font-size: 30px;
+    line-height: 30px;
+  }
+
+  .App-home label
+  {
+    font-size: 25px;
+    line-height: 25px;
+  }
+}
+
+@media screen and (min-width: 1300px){
+  .App-analyzer .App-main img
+  {
+    width: 730px;
+  }
 }
