@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
+from os.path import exists
 plt.style.use('fivethirtyeight')
 
 mpl.use("svg")
@@ -20,7 +22,6 @@ def getPolarity(text):
 #the big function that does literall everything: "main"
 
 def analyzeCSV(kv:list=[]):
-
     #read the csv, then remove all purchases with no reviews
     reviews_data = pd.read_csv("tutorial.csv")
     reviews_data['entry'].replace('',np.nan,inplace=True)
@@ -121,9 +122,7 @@ def createHeatMap(csv_file:str,kv:list=[]):
 #remove all elements of dataframe df which do not have any of the values matching the keys in kv
 def filterDataFrame(df:pd.DataFrame,kv:list=[]):
     # print('DEBUG: BEFORE FILTER:\n', df.head())
-    print(df)
     for key in kv:
-        print(key)
         if(len(key) != 0):
             df = df.loc[df[key[0]] == key[1]]
     # print('DEBUG: AFTER FILTER:\n', df.head())
@@ -142,4 +141,5 @@ def heatmapNumPy(df:pd.DataFrame):
     
     return result_heatmap
 
-plt.close()
+def plotClose():
+    plt.close()

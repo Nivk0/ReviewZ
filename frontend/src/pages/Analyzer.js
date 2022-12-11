@@ -11,6 +11,7 @@ function HomeButton() {
     )
 }
 
+let locationFilter;
 function Location() {
     const [location, setLocation] = useState('');
     let locations = [];
@@ -23,6 +24,7 @@ function Location() {
     const handleChange = event => {
         event.preventDefault()
         setLocation(event.target.value)
+        locationFilter = String(event.target.value)
     };
     
     return(
@@ -39,27 +41,28 @@ function Location() {
     );
 }
 
+let monthFilter;
 function Month() {
     const [month, setMonth] = useState('');
     let months = [];
     months.push(<option value={''}>{''}</option>)
-    months.push(<option value={'1'}>{'January'}</option>)
-    months.push(<option value={'2'}>{'February'}</option>)
-    months.push(<option value={'3'}>{'March'}</option>)
-    months.push(<option value={'4'}>{'April'}</option>)
-    months.push(<option value={'5'}>{'May'}</option>)
-    months.push(<option value={'6'}>{'June'}</option>)
-    months.push(<option value={'7'}>{'July'}</option>)
-    months.push(<option value={'8'}>{'August'}</option>)
-    months.push(<option value={'9'}>{'September'}</option>)
-    months.push(<option value={'10'}>{'October'}</option>)
-    months.push(<option value={'11'}>{'November'}</option>)
-    months.push(<option value={'12'}>{'December'}</option>)
+    months.push(<option value={'January'}>{'January'}</option>)
+    months.push(<option value={'February'}>{'February'}</option>)
+    months.push(<option value={'March'}>{'March'}</option>)
+    months.push(<option value={'April'}>{'April'}</option>)
+    months.push(<option value={'May'}>{'May'}</option>)
+    months.push(<option value={'June'}>{'June'}</option>)
+    months.push(<option value={'July'}>{'July'}</option>)
+    months.push(<option value={'August'}>{'August'}</option>)
+    months.push(<option value={'September'}>{'September'}</option>)
+    months.push(<option value={'October'}>{'October'}</option>)
+    months.push(<option value={'November'}>{'November'}</option>)
+    months.push(<option value={'December'}>{'December'}</option>)
 
     
     const handleChange = event => {
         setMonth(event.target.value);
-        
+        monthFilter = String(event.target.value);
     };
     return(
         <div>
@@ -161,14 +164,20 @@ function GraphOptions() {
 export default function Analyzer() {
 
     const onClick = event => {
-        fetch(filename) ///* + SVG */)
-          .then(function(data){
-          return data.blob();
-        })
-        .then(blob => {
-          var img = URL.createObjectURL(blob);
-          document.getElementById('graph').setAttribute('src', img);
-        })
+        fetch("http://127.0.0.1:5000/filterupdate", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({location: locationFilter, month: monthFilter}), //http request ?url=urlpath
+        }).then((response) => {
+            fetch(filename) 
+            .then(function(data){
+                return data.blob();
+            })
+            .then(blob => {
+                var img = URL.createObjectURL(blob);
+                document.getElementById('graph').setAttribute('src', img);
+            })
+        });
     };
 
     return (
