@@ -73,6 +73,7 @@ def remove():
 @cross_origin()
 def setURL():
     
+    mpl.use("svg")
     b = []
     c = [] 
     d = []     
@@ -168,9 +169,10 @@ def setURL():
             # print('DEBUG:',num)
             # print('DEBUG',b[num-1])
             c[num-1]
-            thewriter.writerow({'number':num, 'entry':b[num-1], 'location':count, 'date':d[num-1]  })
-            
-    ancsv.analyzeCSV([['date', ' December 1, 2022']])
+            month = d[num-1].split(" ")[1]
+            thewriter.writerow({'number':num, 'entry':b[num-1], 'location':count, 'date':month  })
+
+    ancsv.analyzeCSV([['date', 'December']])
 
     plt.close()
 
