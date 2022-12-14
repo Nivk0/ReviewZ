@@ -1,19 +1,11 @@
-from flask import Flask, send_from_directory, request, url_for, send_file, Response
-from flask_restful import reqparse, Api
+from flask import Flask, send_from_directory, request, send_file, Response, jsonify, make_response
+from flask_restful import Api
 from flask_cors import CORS, cross_origin
-from api.HelloApiHandler import HelloApiHandler
-from textblob import TextBlob
-from flask import Flask, jsonify, request, send_from_directory, send_file, redirect, url_for
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 plt.style.use('fivethirtyeight')
 import requests
 from bs4 import BeautifulSoup
 import csv
-import array as arr
 import cleantext
 import os
 from os.path import exists
@@ -29,24 +21,18 @@ api = Api(app)
 def serve():
     return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/get_image')
-def get_image():
-    filename = 'analyzed_histogram.svg'
-    return send_file(filename, mimetype='image/svg+xml')
-
 @app.route('/image/<svgFile>') 
 def serve_image(svgFile):
-    try:
-        file = send_file(svgFile, mimetype='image/svg+xml')
-        return file
-    except:
-        file = send_file("loading.svg", mimetype='image/svg+xml')
-        return file
+    return send_file(svgFile, mimetype='image/svg+xml')
 
 @app.route('/filterupdate', methods=['GET','POST'])
 def filterupdate():
+    if (not exists("analyzed_data.csv")):
+        response = make_response(jsonify({'message': "Image is being created. Please be patient."}), 200,)
+        response.headers["Content-Type"] = "application/json"
+        return response
     if (exists("analyzed_histogram.svg")):
-            os.remove("analyzed_histogram.svg")
+        os.remove("analyzed_histogram.svg")
     if (exists("analyzed_heatmap.svg")):
         os.remove("analyzed_heatmap.svg")
     try:
@@ -61,33 +47,30 @@ def filterupdate():
         ancsv.createHistogram('analyzed_data.csv',[[]])
         ancsv.createHeatMap('analyzed_data.csv',[[]])
         ancsv.plotClose()
-        return Response("Success", status=200, mimetype='application/text')
+        response = make_response(jsonify({'message': "Success"}), 200,)
+        response.headers["Content-Type"] = "application/json"
+        return response
     elif (location == ""):
         ancsv.createHistogram('analyzed_data.csv',[['month', month]])
         ancsv.createHeatMap('analyzed_data.csv',[['month', month]])
         ancsv.plotClose()
-        return Response("Success", status=200, mimetype='application/text')
+        response = make_response(jsonify({'message': "Success"}), 200,)
+        response.headers["Content-Type"] = "application/json"
+        return response
     elif (month == ""):
         ancsv.createHistogram('analyzed_data.csv',[['location', location]])
         ancsv.createHeatMap('analyzed_data.csv',[['location', location]])
         ancsv.plotClose()
-        return Response("Success", status=200, mimetype='application/text')
+        response = make_response(jsonify({'message': "Success"}), 200,)
+        response.headers["Content-Type"] = "application/json"
+        return response
     else:
         ancsv.createHistogram('analyzed_data.csv',[['location', location], ['month', month]])
         ancsv.createHeatMap('analyzed_data.csv',[['location', location], ['month', month]])
         ancsv.plotClose()
-        return Response("Success", status=200, mimetype='application/text')
-
-@app.route("/api", methods=['POST'])
-@cross_origin()
-def bull():
-    url = request.json["url"]
-    urls = url.split("/dp/")
-    url = urls[0] + "/product-reviews/" + urls[1]
-    urls = url.split("/ref=")
-    urls[0] = urls[0] + "/ref=cm_cr_arp_d_paging_btm_next_"
-    urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-    print(urls[0] + str(1) + urls[1] + str(1))
+        response = make_response(jsonify({'message': "Success"}), 200,)
+        response.headers["Content-Type"] = "application/json"
+        return response
 
 @app.route("/remove", methods=['GET'])
 @cross_origin()
@@ -113,8 +96,20 @@ def setURL():
     num = 0
     headers = {  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36", }
 
-    #the website magic
-    app = Flask(__name__, static_folder='public')
+    # If the url is invalid, returns message
+
+    url = request.json["url"]
+    if (url.rfind("/dp/") == -1):
+        if(url==""):
+            response = make_response(jsonify({"message": "Please enter a url."}), 200,)
+        else:
+            response = make_response(jsonify({"message": "The link is invalid. Please try another link."}), 200, )
+        response.headers["Content-Type"] = "application/json"
+        return response
+    
+    #
+    #   Web Scraping Begins Here
+    #
             
     def printPage(item):
         url = request.json["url"]
@@ -215,7 +210,9 @@ def setURL():
     
     for page5 in range(10):
         b.append(printpageUK(page5+1))
-        
+    
+    # Creates the tutorial csv
+    
     with open('tutorial.csv', 'w', newline ='') as csvfile:
         fieldnames = ['number', 'entry', 'location', 'month']
         
@@ -233,14 +230,17 @@ def setURL():
             # print('DEBUG:',num)
             # print('DEBUG',b[num-1])
             c[num-1]
-            month = d[num-1].split(" ")[1]
+            month = d[num-1].split(" ")[1]   #splits the date and returns the month
             thewriter.writerow({'number':num, 'entry':b[num-1], 'location':count, 'month':month  })
-            
+    
+    # Creates ONLY the anaylzed csv
     ancsv.analyzeCSV([[]])
 
     plt.close()
 
-    return Response("Success", status=200, mimetype='application/text')
+    response = make_response(jsonify({"message": "Success"}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
 
 if __name__ == '__main__':
     app.run()

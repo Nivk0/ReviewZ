@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-import os
 from os.path import exists
 plt.style.use('fivethirtyeight')
 
@@ -48,29 +47,15 @@ def createHistogram(csv_file:str,kv:list=[]):
     analyzed_data = pd.read_csv(csv_file)
     #create a filtered dataframe
     
-    print("TEST")
-    
-    # for i in analyzed_data:
-    #     print(str(analyzed_data[i]))
-    
     analyzed_data = filterDataFrame(analyzed_data,kv)
-    
-    # print("TEST")
-    
-    # for i in analyzed_data:
-    #     print(str(analyzed_data[i]))
     
     colors = ["#d80a37","#a01e56","#e1c193","#ffd036","#ffe14d",
             "#ccff4e","#93d10e","#6bd40e","#2fc737","#2db33f"]
     
     #create historgram
     #custom_bins = [-1.00,-0.8,-0.60,-0.40,-0.20,0.00,0.20,0.40,0.60,0.80,1.00]
-    
-    print("TEST")
 
     n,m,patches = plt.hist(analyzed_data['Polarity'],bins = custom_bins)
-    
-    print("Anything: ")
     
     #color the gram
     for i in range(len(n)):

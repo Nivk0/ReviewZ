@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;1,300&display=swap');
 
+:root
+{
+  --vh: 1vh;
+}
 
 .App {
   text-align: center;
@@ -27,10 +31,15 @@
   color: white;
 }
 
+/*
+      HOME STARTS HERE
+*/
+
 .App-home 
 {
   background-color: #1B263B;
-  min-height: 100vh;
+  height: 100vh; /*for sites that don't allow custom variables*/
+  height: calc(var(--vh) * 100);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -136,6 +145,10 @@
   }
 }
 
+/*
+      TOP BAR STARTS HERE
+*/
+
 .topBar {
   background-color: aqua;
   color: blue;
@@ -144,7 +157,8 @@
 .App-analyzer
 {
   background-color: #1B263B;
-  min-height: 100vh;
+  height: 100vh; /*for sites that don't allow custom variables*/
+  height: calc(var(--vh) * 100);
 }
 
   .App-analyzer .App-topbar
@@ -186,10 +200,15 @@
         content: url('https://api.iconify.design/ant-design/home-filled.svg?color=%23e0e1dd&width=54&height=58');
       }
 
+/*
+      SIDEBAR STARTS HERE
+*/
+
 .App-analyzer .App-sidebar
 {
   position: absolute;
-  height: calc(100vh - 92px);
+  height: calc(100vh - 92px); /*for sites that don't allow custom variables*/
+  height: calc(var(--vh) * 100 - 92px);
   width: 325px;
   bottom: 0;
   
@@ -202,7 +221,11 @@
   background: rgba(65, 90, 119, 0.5);
 }
 
-  .App-analyzer .App-sidebar .graph-options
+/*
+    Filters Section (Includes Dropdown Menu)
+*/
+
+  .App-analyzer .App-sidebar .filter-options
   {
     display: flex;
     flex-direction: column;
@@ -212,7 +235,7 @@
     width: 100%;
   }
 
-    .App-analyzer .App-sidebar .graph-options h1
+    .App-analyzer .App-sidebar .filter-options h1
     {
       width: 100%;
       height: 70px;
@@ -231,7 +254,29 @@
       color: #FFFFFF;
     }
 
-  .App-analyzer .App-sidebar .filters
+    .App-analyzer .App-sidebar .filter-choices
+    {
+      display: flex;
+      width: 100%;
+      height: 70px;
+      align-items: center;
+      border-bottom: 1px solid #415A77;
+    }
+
+    .App-analyzer .App-sidebar .filter-choices select
+    {
+      width: 104px;
+      height: 25.09px;
+      background: #FFFFFF;
+      border-radius: 50px;
+      margin-left: 8em;
+    }
+
+/*
+    Graph Options Section (Includes Dropdown Menu)
+*/
+
+  .App-analyzer .App-sidebar .graph-options
   {
     display: flex;
     flex-direction: column;
@@ -241,7 +286,7 @@
     width: 100%;
   }
 
-    .App-analyzer .App-sidebar .filters h1
+    .App-analyzer .App-sidebar .graph-options h1
     {
       width: 100%;
       height: 70px;
@@ -322,6 +367,10 @@
       opacity: 0;
     }
 
+    /*
+      Below handles the checkbox apperance for the radio buttons
+    */
+
     input[id="HIST"]:hover ~ .unchecked,
     input[id="HIST"]:checked ~ .unchecked,
     input[id="HIST"]:focus ~ .unchecked,
@@ -344,6 +393,7 @@
     {
       width: 143px;
       height: 42px;
+      margin: 1em 0 1em 0;
 
       background: #FFFFFF;
       border-radius: 50px;
@@ -375,10 +425,15 @@
       }
 
 
+/*
+  Main Where Graph is Shown
+*/
+
 .App-analyzer .App-main
 {
   position: absolute;
-  height: calc(100vh - 92px);
+  height: calc(100vh - 92px); /*for sites that don't allow custom variables*/
+  height: calc(var(--vh) * 100 - 92px);
   width: calc(100vw - 325px);
   bottom: 0;
   right: 0;
@@ -393,6 +448,22 @@
   {
     width: 75%;
   }
+
+.App-analyzer .App-main .image-prep
+{
+  position: relative;
+
+  font-family: 'Josefin Sans';
+  font-style: light;
+  font-weight: 200;
+  font-size: 15px;
+  line-height: 15px;
+  color: #ffffff;
+}
+
+/*
+  Media adjustments for different screen sizes
+*/
 
 @media screen and (max-width: 850px){
   .App-home div 
@@ -412,7 +483,8 @@
   {
     overflow-x: hidden;
     overflow-y: auto;
-    height: 40vh;
+    height: 40vh; /*for sites that don't allow custom variables*/
+    height: calc(var(--vh) * 40);
     width: 100vw;
   }
 
@@ -447,7 +519,8 @@
     position: absolute;
     top: 92px;
     left: 0px;
-    height: calc(60vh - 92px);
+    height: calc(60vh - 92px); /*for sites that don't allow custom variables*/
+    height: calc(var(--vh) * 60 - 92px);
     width: 100vw;
   } 
 
@@ -455,6 +528,17 @@
   {
     width: 300px;
   }
+
+  .App-analyzer .App-sidebar select
+  {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    position: absolute;
+    right: calc(20vw);
+  }
+
 }
 
 @media screen and (max-width: 500px){

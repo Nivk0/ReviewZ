@@ -4,16 +4,22 @@ import { BrowserRouter as Router, Routes, Route }
   from 'react-router-dom';
 import Home from './pages/Home';
 import Analyzer from './pages/Analyzer';
-import Bullshit from './pages/Bullshit';
 
+function BrowserVH()
+{
+  window.addEventListener('resize', () => {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  });
+}
 
 function App() {
   return (
-    <Router>
-      <Routes>
+    <Router class>
+      <Routes id>
+        {BrowserVH()}
         <Route path='/' element={<Home />} />
         <Route path='/analyzer' element={<Analyzer />} />
-        <Route path='/bull' element={<Bullshit />} />
       </Routes>
     </Router>
   );
