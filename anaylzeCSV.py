@@ -21,15 +21,16 @@ def getPolarity(text):
 #the big function that does literall everything: "main"
 
 def analyzeCSV(kv:list=[]):
+    
     #read the csv, then remove all purchases with no reviews
     reviews_data = pd.read_csv("tutorial.csv")
     reviews_data['entry'].replace('',np.nan,inplace=True)
     reviews_data.dropna(subset=['entry'],inplace=True)
-
+    
     #add new sentimentality columns
     reviews_data['Subjectivity'] = reviews_data['entry'].apply(getSubjectivity)
     reviews_data['Polarity'] = reviews_data['entry'].apply(getPolarity)
-
+    
     #sort reviews_data, then write to external file
     sorted_data = reviews_data.sort_values(by=['Polarity'])
     sorted_data.to_csv('analyzed_data.csv',index=False)
@@ -43,7 +44,6 @@ def analyzeCSV(kv:list=[]):
 #             and kv[n][1] is the value to be filtered for
 def createHistogram(csv_file:str,kv:list=[]):
 
-    print(csv_file)
     analyzed_data = pd.read_csv(csv_file)
     #create a filtered dataframe
     

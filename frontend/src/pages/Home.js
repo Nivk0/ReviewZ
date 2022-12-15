@@ -29,10 +29,42 @@ export default function Home() {
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({url: urlpath}), //http request ?url=urlpath
         }).then(response =>  response.json()).then(data => {
-            alert(data["message"])
-            if(data["message"] !== "Success")
+            if(data["message"] !== "Collecting data from the US sites.")
             {
+                alert(data["message"])
                 navigate('/')
+            }
+            else
+            {
+                document.getElementById("image-prep").innerText = data["message"]
+                fetch("/us-scraping").then(response => response.json()).then(data =>
+                {
+                    document.getElementById("image-prep").innerText = data["message"]
+                    fetch("/au-scraping").then(response => response.json()).then(data =>
+                    {
+                        document.getElementById("image-prep").innerText = data["message"]
+                        fetch("/ca-scraping").then(response => response.json()).then(data =>
+                        {
+                            document.getElementById("image-prep").innerText = data["message"]
+                            fetch("/in-scraping").then(response => response.json()).then(data =>
+                            {
+                                document.getElementById("image-prep").innerText = data["message"]
+                                fetch("/uk-scraping").then(response => response.json()).then(data =>
+                                {
+                                    document.getElementById("image-prep").innerText = data["message"]
+                                    fetch("/tutorial-csv").then(response => response.json()).then(data =>
+                                    {
+                                        document.getElementById("image-prep").innerText = data["message"]
+                                        fetch("/analyzed-csv").then(response => response.json()).then(data =>
+                                        {
+                                            document.getElementById("image-prep").innerText = data["message"]
+                                        })
+                                    })
+                                })
+                            })
+                        })
+                    })
+                })
             }
         });
     };

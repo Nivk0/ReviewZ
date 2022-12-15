@@ -34,10 +34,11 @@ function Location() {
     const [location, setLocation] = useState('');
     let locations = [];
     locations.push(<option value={''}>{''}</option>)
-    locations.push(<option value={'the united states'}>{'The United States'}</option>)
-    locations.push(<option value={'canada'}>{'Canada'}</option>)
     locations.push(<option value={'australia'}>{'Australia'}</option>)
+    locations.push(<option value={'canada'}>{'Canada'}</option>)
     locations.push(<option value={'india'}>{'India'}</option>)
+    locations.push(<option value={'the united kingdom'}>{'The United Kingdom'}</option>)
+    locations.push(<option value={'the united states'}>{'The United States'}</option>)
     
     // If the html changes then value of that change(event) is set with setMonth
     const handleChange = event => {

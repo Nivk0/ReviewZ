@@ -84,135 +84,162 @@ def remove():
     if (exists("analyzed_heatmap.svg")):
         os.remove("analyzed_heatmap.svg")
     return Response("Success", status=200, mimetype='application/text')
-    
 
 @app.route("/url", methods=['GET','POST'])
 @cross_origin()
 def setURL():
-    
-    b = []
-    c = [] 
-    d = []     
-    num = 0
+
+    # Declaration
+    global comments, locations, months, amazonID, headers
+
+    comments = []
+    locations = []
+    months = []
     headers = {  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36", }
 
     # If the url is invalid, returns message
+    URL = request.json["url"]
 
-    url = request.json["url"]
-    if (url.rfind("/dp/") == -1):
-        if(url==""):
+    if (URL.rfind("/dp/") == -1):
+        if(URL==""):
             response = make_response(jsonify({"message": "Please enter a url."}), 200,)
         else:
             response = make_response(jsonify({"message": "The link is invalid. Please try another link."}), 200, )
-        response.headers["Content-Type"] = "application/json"
-        return response
-    
-    #
-    #   Web Scraping Begins Here
-    #
-            
+    else:
+        # Gives the Amazon ID
+        amazonID = URL.split("/dp/")[1][0:10]
+        response = make_response(jsonify({"message": "Collecting data from the US sites."}), 200, )
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+#
+#   Web Scraping Begins Here
+#
+
+@app.route("/us-scraping", methods=['GET','POST'])       
+@cross_origin()
+def usScraping():
     def printPage(item):
-        url = request.json["url"]
-        urls = url.split("/dp/")
-        url = "https://amazon.com/product-reviews/" + urls[1][0:10]
-        urls[0] = url + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urls[0] +str(item)+ urls[1] + str(item))
+        urlBeginning = "https://amazon.com/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
+        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
+        url =  (urlBeginning +str(item)+ urlEnd + str(item))
         webpage = requests.get(url, headers=headers)
         soup = BeautifulSoup(webpage.content, "html.parser")
         reviews = soup.find_all('div', {'data-hook': 'review'})
         
         for i in reviews:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
+            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
             splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            c.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            d.append(splitter[1].split('on')[-1])
-
-    def printPageAu(item):
-        url = request.json["url"]
-        urls = url.split("/dp/")
-        url = "https://amazon.com.au/product-reviews/" + urls[1][0:10]
-        urls[0] = url + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urls[0] +str(item)+ urls[1] + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
-        
-        for i in reviews:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            c.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            d.append(splitter[1].split('on')[-1])
-            
-    def printPageCA(item):
-        url = request.json["url"]
-        urls = url.split("/dp/")
-        url = "https://amazon.ca/product-reviews/" + urls[1][0:10]
-        urls[0] = url + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urls[0] +str(item)+ urls[1] + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
-        
-        for i in reviews:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            c.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            d.append(splitter[1].split('on')[-1])
-            
-    def printPageIN(item):
-        url = request.json["url"]
-        urls = url.split("/dp/")
-        url = "https://amazon.in/product-reviews/" + urls[1][0:10]
-        urls[0] = url + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urls[0] +str(item)+ urls[1] + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
-        
-        for i in reviews:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            c.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            d.append(splitter[1].split('on')[-1])
-
-    def printpageUK(item):
-        url = request.json["url"]
-        urls = url.split("/dp/")
-        url = "https://amazon.co.uk/product-reviews/" + urls[1][0:10]
-        urls[0] = url + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urls[1] = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urls[0] +str(item)+ urls[1] + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
-        
-        for i in reviews:
-            b.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            c.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            d.append(splitter[1].split('on')[-1])
-
+            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
+            months.append(splitter[1].split('on')[-1])
+    
     for page in range(50):
-        b.append(printPage(page+1))
-        
+        printPage(page+1)
+
+    response = make_response(jsonify({"message": "Collecting data from the Australian sites."}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+@app.route("/au-scraping", methods=['GET','POST'])       
+@cross_origin()
+def auScraping():
+    def printPageAu(item):
+        urlBeginning = "https://amazon.com.au/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
+        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
+        url =  (urlBeginning +str(item)+ urlEnd + str(item))
+        webpage = requests.get(url, headers=headers)
+        soup = BeautifulSoup(webpage.content, "html.parser")
+        reviews = soup.find_all('div', {'data-hook': 'review'})
+            
+        for i in reviews:
+            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
+            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
+            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
+            months.append(splitter[1].split('on')[-1])
+    
     for page2 in range(2):
-        b.append(printPageAu(page2+1))
+        printPageAu(page2+1)
+
+    response = make_response(jsonify({"message": "Collecting data from the Canadian sites."}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+@app.route("/ca-scraping", methods=['GET','POST'])       
+@cross_origin()
+def caScraping():
+    def printPageCA(item):
+        urlBeginning = "https://amazon.ca/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
+        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
+        url =  (urlBeginning +str(item)+ urlEnd + str(item))
+        webpage = requests.get(url, headers=headers)
+        soup = BeautifulSoup(webpage.content, "html.parser")
+        reviews = soup.find_all('div', {'data-hook': 'review'})
+        
+        for i in reviews:
+            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
+            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
+            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
+            months.append(splitter[1].split('on')[-1])
 
     for page3 in range(50):
-        b.append(printPageCA(page3+1))
+        printPageCA(page3+1)
 
+    response = make_response(jsonify({"message": "Collecting data from the India sites."}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
+            
+@app.route("/in-scraping", methods=['GET','POST'])       
+@cross_origin()
+def inScraping():
+    def printPageIN(item):
+        urlBeginning = "https://amazon.in/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
+        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
+        url =  (urlBeginning +str(item)+ urlEnd + str(item))
+        webpage = requests.get(url, headers=headers)
+        soup = BeautifulSoup(webpage.content, "html.parser")
+        reviews = soup.find_all('div', {'data-hook': 'review'})
+        
+        for i in reviews:
+            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
+            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
+            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
+            months.append(splitter[1].split('on')[-1])
+        
     for page4 in range(2):
-        b.append(printPageIN(page4+1))
+        printPageIN(page4+1)
+
+    response = make_response(jsonify({"message": "Collecting data from the UK sites."}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+@app.route("/uk-scraping", methods=['GET','POST'])       
+@cross_origin()
+def ukScraping():
+    def printpageUK(item):
+        urlBeginning = "https://amazon.co.uk/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
+        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
+        url =  (urlBeginning +str(item)+ urlEnd + str(item))
+        webpage = requests.get(url, headers=headers)
+        soup = BeautifulSoup(webpage.content, "html.parser")
+        reviews = soup.find_all('div', {'data-hook': 'review'})
+        
+        for i in reviews:
+            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
+            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split(' in')    
+            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True))             
+            months.append(splitter[1].split('on ')[-1])
     
     for page5 in range(10):
-        b.append(printpageUK(page5+1))
+        printpageUK(page5+1)
     
-    # Creates the tutorial csv
+    response = make_response(jsonify({"message": "Compiling all the site information into one location."}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
     
+# Creates the tutorial csv
+@app.route("/tutorial-csv", methods=['GET','POST'])       
+@cross_origin()
+def tutorialCSV():
     with open('tutorial.csv', 'w', newline ='') as csvfile:
         fieldnames = ['number', 'entry', 'location', 'month']
         
@@ -223,22 +250,29 @@ def setURL():
         # print('DEBUG:',len(c))
         # print('DEBUG:',len(b))
         # print('DEBUG',len(d))
-        for count in c:
+        num = 0
+        for location in locations:
             num+=1
             
             #DEBUG
             # print('DEBUG:',num)
             # print('DEBUG',b[num-1])
-            c[num-1]
-            month = d[num-1].split(" ")[1]   #splits the date and returns the month
-            thewriter.writerow({'number':num, 'entry':b[num-1], 'location':count, 'month':month  })
-    
-    # Creates ONLY the anaylzed csv
+            locations[num-1]
+            month = months[num-1].split(" ")[1]   #splits the date and returns the month
+            thewriter.writerow({'number':num, 'entry':comments[num-1], 'location':location, 'month':month  })
+        
+    response = make_response(jsonify({"message": "Analyzing the data and creating the graphs."}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+# Creates ONLY the anaylzed csv
+@app.route("/analyzed-csv", methods=['GET','POST'])       
+@cross_origin()
+def analyzedCSV():
     ancsv.analyzeCSV([[]])
+    ancsv.plotClose()
 
-    plt.close()
-
-    response = make_response(jsonify({"message": "Success"}), 200,)
+    response = make_response(jsonify({"message": "Complete!"}), 200,)
     response.headers["Content-Type"] = "application/json"
     return response
 
