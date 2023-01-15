@@ -50,9 +50,9 @@ function Location() {
     return(
         <label class="filter-choices">
             <p>Region</p>
-            <select value={location} onChange={handleChange}>
-                    { locations }
-                </select>
+            <select id="location-filter" value={location} onChange={handleChange}>
+                { locations }
+            </select>
         </label>
     );
 }
@@ -221,7 +221,11 @@ function GraphOptionsDropdown({open, trigger, menu}) {
 
 export default function Analyzer() {
 
+    document.getElementById("theme-color").setAttribute("content", "#415A77")
+    document.getElementById("viewport").setAttribute("content", "width=device-width, height=device-height, initial-scale=1, maximum-scale=1")
+
     const onClick = event => {
+        locationFilter = document.getElementById("location-filter").value
         // sends location and month to flask to create a new filtered image
         fetch("/filterupdate", {
           method: "POST",

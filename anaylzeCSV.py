@@ -1,3 +1,4 @@
+import csv
 from textblob import TextBlob
 import matplotlib as mpl
 import pandas as pd
@@ -37,6 +38,16 @@ def analyzeCSV(kv:list=[]):
     
     createHistogram('analyzed_data.csv',kv)
     createHeatMap('analyzed_data.csv',kv)
+    
+def anaCSV(review: map = {}):
+    with open('analyzed_data.csv', 'a', newline ='') as csvfile:
+        review['Polarity'] = getPolarity(review['Review'])
+        review['Subjectivity'] = getSubjectivity(review['Review'])
+        
+        fieldnames = ['Polarity', 'Subjectivity', 'Review', 'Location', 'Month']
+        thewriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        thewriter.writerow(review)
+    
 
 #enter a csv file and filter through key-value pairs to create a histogram
 #params: csv - string of file name
@@ -47,7 +58,10 @@ def createHistogram(csv_file:str,kv:list=[]):
     analyzed_data = pd.read_csv(csv_file)
     #create a filtered dataframe
     
-    analyzed_data = filterDataFrame(analyzed_data,kv)
+    try:
+        analyzed_data = filterDataFrame(analyzed_data,kv)
+    except Exception as err:
+        print(f"Error with applying the filter: {err}")
     
     colors = ["#d80a37","#a01e56","#e1c193","#ffd036","#ffe14d",
             "#ccff4e","#93d10e","#6bd40e","#2fc737","#2db33f"]
@@ -64,7 +78,7 @@ def createHistogram(csv_file:str,kv:list=[]):
 
     #format graph
     plt.title('Positivity of Reviews')
-    plt.xlabel('Polarity')
+    plt.xlabel('Positivity')
     plt.xticks(custom_bins)
     plt.ylabel('Frequency')
     plt.tight_layout()
@@ -85,7 +99,10 @@ def createHeatMap(csv_file:str,kv:list=[]):
     analyzed_data = pd.read_csv(csv_file)
     
     #filter the dataframe
-    analyzed_data = filterDataFrame(analyzed_data,kv)
+    try:
+        analyzed_data = filterDataFrame(analyzed_data,kv)
+    except Exception as err:
+        print(f"Error with applying the filter: {err}")
     
     #create the heat map
     map_data = {'Polarity':analyzed_data['Polarity'],
@@ -95,7 +112,7 @@ def createHeatMap(csv_file:str,kv:list=[]):
     
     sns.heatmap(heatmap, cmap='RdPu')
     plt.title('Frequency of Sentimentalities')
-    plt.ylabel('Polarity')
+    plt.ylabel('Positivity')
     plt.yticks(range(len(custom_bins)),labels=custom_bins,rotation=30)
     plt.rc('ytick',labelsize=7)
     plt.xlabel('Subjectivity')

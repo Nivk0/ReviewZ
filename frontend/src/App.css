@@ -5,30 +5,12 @@
   --vh: 1vh;
 }
 
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+body
+{
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #1B263B;
 }
 
 /*
@@ -38,8 +20,9 @@
 .App-home 
 {
   background-color: #1B263B;
-  height: 100vh; /*for sites that don't allow custom variables*/
-  height: calc(var(--vh) * 100);
+  height: 80vh; /* for sites that don't allow custom variables */
+  /* height: calc(var(--vh) * 100); */
+  margin-top: 10vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -149,16 +132,12 @@
       TOP BAR STARTS HERE
 */
 
-.topBar {
-  background-color: aqua;
-  color: blue;
-}
-
 .App-analyzer
 {
   background-color: #1B263B;
-  height: 100vh; /*for sites that don't allow custom variables*/
-  height: calc(var(--vh) * 100);
+  height: 80vh; /* for sites that don't allow custom variables */
+  /* height: calc(var(--vh) * 100); */
+  margin-top: 10vh;
 }
 
   .App-analyzer .App-topbar
@@ -208,7 +187,7 @@
 {
   position: absolute;
   height: calc(100vh - 92px); /*for sites that don't allow custom variables*/
-  height: calc(var(--vh) * 100 - 92px);
+  /* height: calc(var(--vh) * 100 - 92px); */
   width: 325px;
   bottom: 0;
   
@@ -359,7 +338,7 @@
       transition: all 0.1s;
     }
     
-    .App-analyzer .App-sidebar input + svg {
+    .App-analyzer .App-sidebar input ~ svg {
       cursor: pointer;
     }
   
@@ -405,6 +384,8 @@
       font-size: 25px;
       line-height: 25px;
       color: #415A77;
+
+      cursor: pointer;
     }
 
     .App-analyzer .App-sidebar button
@@ -479,12 +460,13 @@
 }
 
 @media screen and (max-width: 650px){
+
   .App-analyzer .App-sidebar
   {
     overflow-x: hidden;
     overflow-y: auto;
     height: 40vh; /*for sites that don't allow custom variables*/
-    height: calc(var(--vh) * 40);
+    /* height: calc(var(--vh) * 40); */
     width: 100vw;
   }
 
@@ -513,6 +495,11 @@
     position: absolute;
     left: calc(75vw);
   }
+  
+  .App-analyzer .App-sidebar .btn-apply
+  {
+    padding: 0.5em 0 1.3em 0;
+  }
 
   .App-analyzer .App-main
   {
@@ -520,7 +507,7 @@
     top: 92px;
     left: 0px;
     height: calc(60vh - 92px); /*for sites that don't allow custom variables*/
-    height: calc(var(--vh) * 60 - 92px);
+    /* height: calc(var(--vh) * 60 - 92px); */
     width: 100vw;
   } 
 
@@ -555,9 +542,10 @@
   }
 }
 
-@media screen and (min-width: 1300px){
+@media screen and (min-width: 894px){
+
   .App-analyzer .App-main img
   {
-    width: 730px;
+    width: 425px;
   }
 }

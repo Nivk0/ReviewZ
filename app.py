@@ -1,3 +1,7 @@
+import asyncio
+from itertools import cycle
+import re
+import aiohttp
 from flask import Flask, send_from_directory, request, send_file, Response, jsonify, make_response
 from flask_restful import Api
 from flask_cors import CORS, cross_origin
@@ -10,6 +14,8 @@ import cleantext
 import os
 from os.path import exists
 import anaylzeCSV as ancsv
+import appProxy as apPxy
+import pandas as pd
 
 
 app = Flask(__name__, static_folder='frontend/build', static_url_path='')
@@ -20,6 +26,19 @@ api = Api(app)
 @cross_origin()
 def serve():
     return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/location-filter', methods=['GET'])
+@cross_origin()
+def location_filter():
+    reviews_data = pd.read_csv("analyzed_data.csv")
+    try:
+        locations = reviews_data['Location'].drop_duplicates().sort_values().tolist()
+        response = make_response(jsonify({'message': "Success", "locations": locations}), 200,)
+    except Exception as err:
+        print(f"Error occured in location-filter: {err}")
+        response = make_response(jsonify({'message': "Failed to find locations"}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
 
 @app.route('/image/<svgFile>') 
 def serve_image(svgFile):
@@ -51,22 +70,22 @@ def filterupdate():
         response.headers["Content-Type"] = "application/json"
         return response
     elif (location == ""):
-        ancsv.createHistogram('analyzed_data.csv',[['month', month]])
-        ancsv.createHeatMap('analyzed_data.csv',[['month', month]])
+        ancsv.createHistogram('analyzed_data.csv',[['Month', month]])
+        ancsv.createHeatMap('analyzed_data.csv',[['Month', month]])
         ancsv.plotClose()
         response = make_response(jsonify({'message': "Success"}), 200,)
         response.headers["Content-Type"] = "application/json"
         return response
     elif (month == ""):
-        ancsv.createHistogram('analyzed_data.csv',[['location', location]])
-        ancsv.createHeatMap('analyzed_data.csv',[['location', location]])
+        ancsv.createHistogram('analyzed_data.csv',[['Location', location]])
+        ancsv.createHeatMap('analyzed_data.csv',[['Location', location]])
         ancsv.plotClose()
         response = make_response(jsonify({'message': "Success"}), 200,)
         response.headers["Content-Type"] = "application/json"
         return response
     else:
-        ancsv.createHistogram('analyzed_data.csv',[['location', location], ['month', month]])
-        ancsv.createHeatMap('analyzed_data.csv',[['location', location], ['month', month]])
+        ancsv.createHistogram('analyzed_data.csv',[['Location', location], ['Month', month]])
+        ancsv.createHeatMap('analyzed_data.csv',[['Location', location], ['Month', month]])
         ancsv.plotClose()
         response = make_response(jsonify({'message': "Success"}), 200,)
         response.headers["Content-Type"] = "application/json"
@@ -76,11 +95,13 @@ def filterupdate():
 @cross_origin()
 def remove():
     if (exists("tutorial.csv")):
-            os.remove("tutorial.csv")
+        os.remove("tutorial.csv")
     if (exists("analyzed_data.csv")):
-            os.remove("analyzed_data.csv")
+        os.remove("analyzed_data.csv")
+    if (exists("proxies.csv")):
+        os.remove("proxies.csv")
     if (exists("analyzed_histogram.svg")):
-            os.remove("analyzed_histogram.svg")
+        os.remove("analyzed_histogram.svg")
     if (exists("analyzed_heatmap.svg")):
         os.remove("analyzed_heatmap.svg")
     return Response("Success", status=200, mimetype='application/text')
@@ -88,17 +109,37 @@ def remove():
 @app.route("/url", methods=['GET','POST'])
 @cross_origin()
 def setURL():
-
-    # Declaration
-    global comments, locations, months, amazonID, headers
-
-    comments = []
-    locations = []
-    months = []
-    headers = {  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36", }
-
     # If the url is invalid, returns message
     URL = request.json["url"]
+    
+    # Declaration
+    global urlBeginning, urlEnd, headers
+
+    headers = [{ "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate", 
+                "Referer": URL, },
+               { "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A5370a Safari/604.1",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate", 
+                "Referer": URL, },
+               { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate", 
+                "Referer": URL, },
+               { "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate", 
+                "Referer": URL, },
+               { "User-Agent": "Mozilla/5.0 (Linux; Android 7.1.1; Google Pixel Build/NMF26F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/54.0.2840.85 Mobile Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate", 
+                "Referer": URL, }]
 
     if (URL.rfind("/dp/") == -1):
         if(URL==""):
@@ -106,175 +147,132 @@ def setURL():
         else:
             response = make_response(jsonify({"message": "The link is invalid. Please try another link."}), 200, )
     else:
-        # Gives the Amazon ID
+            # Gives the Amazon ID
         amazonID = URL.split("/dp/")[1][0:10]
-        response = make_response(jsonify({"message": "Collecting data from the US sites."}), 200, )
+            # Gives the country domain of the amazon site
+        amazonDomain = URL[0 : URL.find("/", 10)]
+            # These will be used to scrape the data
+        urlBeginning = amazonDomain + "/-/en/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
+        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
+        response = make_response(jsonify({"message": "Preparing to mine data from the sites."}), 200, )
     response.headers["Content-Type"] = "application/json"
     return response
 
+@app.route("/number-of-reviews", methods=['GET'])
+@cross_origin()
+def numberOfReviews():
+    url =  (urlBeginning +str(1)+ urlEnd + str(1))
+    print(url)
+    
+    webpage = requests.get(url, headers=headers[1])
+    soup = BeautifulSoup(webpage.content, "html.parser")
+    
+    if apPxy.isBlocked(soup):
+        incrementor = 0
+        while(apPxy.isBlocked(soup) and incrementor < len(headers)):
+            print("BLOCKED")
+            try:
+                webpage = requests.get(url, headers=headers[incrementor], timeout=1)
+                soup = BeautifulSoup(webpage.content, "html.parser")
+                incrementor = incrementor + 1
+            except:
+                print("Connection error")
+                incrementor = incrementor + 1
+    
+    try:
+        commaNum = soup.find(string=re.compile("total ratings, ")).text.split("ratings, ")[1].split(" ")[0].split(",")
+        global totalReviews 
+        totalReviews = int(0)
+
+        for index in range(len(commaNum)):
+            totalReviews += int(commaNum[index]) * pow(1000, len(commaNum) - index - 1)
+        
+        response = make_response(jsonify({"message": totalReviews}), 200,)
+    except:
+        response = make_response(jsonify({"message": "Please try again."}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
+
+@app.route("/get-proxies", methods=['GET'])
+@cross_origin()
+def getProxies():
+    response = make_response(jsonify({"message": "Proxies have been collected.", "proxies": apPxy.getProxies((urlBeginning +str(1)+ urlEnd + str(1)), totalReviews)}), 200,)
+    response.headers["Content-Type"] = "application/json"
+    return response
+        
 #
 #   Web Scraping Begins Here
 #
 
-@app.route("/us-scraping", methods=['GET','POST'])       
+@app.route("/scraper", methods=['GET', 'POST'])
 @cross_origin()
-def usScraping():
-    def printPage(item):
-        urlBeginning = "https://amazon.com/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urlBeginning +str(item)+ urlEnd + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
+def scrape_all():
+    pageStart = int(request.json["page-start"])
+    pageInterval = int(request.json["page-interval"])
+    proxies = request.json["proxies"]
         
-        for i in reviews:
-            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            months.append(splitter[1].split('on')[-1])
-    
-    for page in range(50):
-        printPage(page+1)
-
-    response = make_response(jsonify({"message": "Collecting data from the Australian sites."}), 200,)
-    response.headers["Content-Type"] = "application/json"
-    return response
-
-@app.route("/au-scraping", methods=['GET','POST'])       
-@cross_origin()
-def auScraping():
-    def printPageAu(item):
-        urlBeginning = "https://amazon.com.au/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urlBeginning +str(item)+ urlEnd + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
+    async def printPage(session, pageNumber : int, cycle_headers : cycle, cycle_proxies : cycle):
+        url = (urlBeginning + str(pageNumber) + urlEnd + str(pageNumber))
+        
+        try:
+            response = await session.get(url, headers=next(cycle_headers), proxy=next(cycle_proxies), ssl=False, timeout=30)
+            # response = await session.request(method="GET", url=url, proxy=nextP, ssl = False, timeout=10)
+            webpage = await response.text()
+            soup = BeautifulSoup(webpage, "html.parser")
             
-        for i in reviews:
-            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            months.append(splitter[1].split('on')[-1])
+            if not(apPxy.isBlocked(soup)):
+                print("SUCCESS ", pageNumber)
+                setCommentData(soup)
+        except Exception as err:
+            pass
+            # DEBUG
+            # print("Connection Error")
+            # print(f"An error has occured: {err}")   
     
-    for page2 in range(2):
-        printPageAu(page2+1)
-
-    response = make_response(jsonify({"message": "Collecting data from the Canadian sites."}), 200,)
-    response.headers["Content-Type"] = "application/json"
-    return response
-
-@app.route("/ca-scraping", methods=['GET','POST'])       
-@cross_origin()
-def caScraping():
-    def printPageCA(item):
-        urlBeginning = "https://amazon.ca/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urlBeginning +str(item)+ urlEnd + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
+    def setCommentData(soup):
+        reviewBodies = soup.find_all('span', {'data-hook' : 'review-body'})
+        reviewDates =  soup.find_all('span', {'data-hook' : 'review-date'})
         
-        for i in reviews:
-            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            months.append(splitter[1].split('on')[-1])
-
-    for page3 in range(50):
-        printPageCA(page3+1)
-
-    response = make_response(jsonify({"message": "Collecting data from the India sites."}), 200,)
-    response.headers["Content-Type"] = "application/json"
-    return response
-            
-@app.route("/in-scraping", methods=['GET','POST'])       
-@cross_origin()
-def inScraping():
-    def printPageIN(item):
-        urlBeginning = "https://amazon.in/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urlBeginning +str(item)+ urlEnd + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
+        for index in range(len(reviewBodies)):
+            try:
+                comment = cleantext.clean(reviewBodies[index].text, no_emoji=True)
+            except:
+                comment = "Not available"
+            try:
+                locationAndDate = reviewDates[index].text.split('in ') [1].split('on ') 
+                location = cleantext.clean(locationAndDate[0], no_emoji=True)
+                months = locationAndDate[1].split(" ")
+                if (len(months[0]) > 2):
+                    month = (months[0])
+                else:
+                    month = (months[1])
+            except:
+                location = "Other"
+                month = "Not available"
+            try:
+                ancsv.anaCSV({'Review':comment, 'Location':location, 'Month':month })
+            except Exception as err:
+                print(f"Error writing comments: {err}")
         
-        for i in reviews:
-            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split('in')     
-            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True)) 
-            months.append(splitter[1].split('on')[-1])
-        
-    for page4 in range(2):
-        printPageIN(page4+1)
+    async def run():
+        if (pageStart == 1):
+            with open('analyzed_data.csv', 'w', newline ='') as csvfile:
+                fieldnames = ['Polarity', 'Subjectivity', 'Review', 'Location', 'Month']
+                thewriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                thewriter.writeheader()
+        cycle_proxies = cycle(proxies)
+        cycle_headers = cycle(headers)
+        connector = aiohttp.TCPConnector(limit_per_host=50)
+        async with aiohttp.ClientSession(connector = connector) as session:
+            await asyncio.gather(*[printPage(session, pageNumber + pageStart, cycle_headers, cycle_proxies) for pageNumber in range(pageInterval)])
+                
+    print(f"start {pageStart} end {pageInterval}")
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(run())
 
-    response = make_response(jsonify({"message": "Collecting data from the UK sites."}), 200,)
-    response.headers["Content-Type"] = "application/json"
-    return response
-
-@app.route("/uk-scraping", methods=['GET','POST'])       
-@cross_origin()
-def ukScraping():
-    def printpageUK(item):
-        urlBeginning = "https://amazon.co.uk/product-reviews/" + amazonID + "/ref=cm_cr_arp_d_paging_btm_next_"
-        urlEnd = "?ie=UTF8&reviewerType=all_reviews&pageNumber="
-        url =  (urlBeginning +str(item)+ urlEnd + str(item))
-        webpage = requests.get(url, headers=headers)
-        soup = BeautifulSoup(webpage.content, "html.parser")
-        reviews = soup.find_all('div', {'data-hook': 'review'})
-        
-        for i in reviews:
-            comments.append(cleantext.clean(i.find('span', {'data-hook' : 'review-body'}).text, no_emoji=True))
-            splitter = i.find('span', {'data-hook' : 'review-date'}).text.split(' in')    
-            locations.append(cleantext.clean(splitter[1].split('on')[0], no_emoji=True))             
-            months.append(splitter[1].split('on ')[-1])
-    
-    for page5 in range(10):
-        printpageUK(page5+1)
-    
-    response = make_response(jsonify({"message": "Compiling all the site information into one location."}), 200,)
-    response.headers["Content-Type"] = "application/json"
-    return response
-    
-# Creates the tutorial csv
-@app.route("/tutorial-csv", methods=['GET','POST'])       
-@cross_origin()
-def tutorialCSV():
-    with open('tutorial.csv', 'w', newline ='') as csvfile:
-        fieldnames = ['number', 'entry', 'location', 'month']
-        
-        thewriter = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        thewriter.writeheader()
-        
-        #DEBUG
-        # print('DEBUG:',len(c))
-        # print('DEBUG:',len(b))
-        # print('DEBUG',len(d))
-        num = 0
-        for location in locations:
-            num+=1
-            
-            #DEBUG
-            # print('DEBUG:',num)
-            # print('DEBUG',b[num-1])
-            locations[num-1]
-            month = months[num-1].split(" ")[1]   #splits the date and returns the month
-            thewriter.writerow({'number':num, 'entry':comments[num-1], 'location':location, 'month':month  })
-        
-    response = make_response(jsonify({"message": "Analyzing the data and creating the graphs."}), 200,)
-    response.headers["Content-Type"] = "application/json"
-    return response
-
-# Creates ONLY the anaylzed csv
-@app.route("/analyzed-csv", methods=['GET','POST'])       
-@cross_origin()
-def analyzedCSV():
-    ancsv.analyzeCSV([[]])
-    ancsv.plotClose()
-
-    response = make_response(jsonify({"message": "Complete!"}), 200,)
+    response = make_response(jsonify({"message": "We have finished collecting all the reviews."}), 200,)
     response.headers["Content-Type"] = "application/json"
     return response
 
 if __name__ == '__main__':
-    app.run()
+    app.run(threaded=True)

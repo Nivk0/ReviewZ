@@ -2,6 +2,119 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+function SetUrl (urlpath, navigate) {
+    fetch("/url", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({url: urlpath}), }) //http request ?url=urlpath
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (data) {
+        NumberOfReviews(data, navigate)
+    })
+    .catch(function (error) {
+        console.log(error)
+    })
+}
+
+function NumberOfReviews(data, navigate) {
+    if(data["message"] !== "Preparing to mine data from the sites.")
+    {
+        alert(data["message"])
+        navigate('/')
+    }
+    else
+    {
+        document.getElementById("image-prep").innerText = data["message"]
+        fetch("/number-of-reviews")
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            getProxies(data)
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+    }
+}
+
+function getProxies(data) {
+    if(data["message"] === "Failed to collect the total number of reviews. Please try again.")
+    {
+        document.getElementById("image-prep").innerText = data["message"]
+    }
+    else
+    {
+        const maxPage = (Math.ceil(data["message"]/10.0) > 500) ? 500 : Math.ceil(data["message"]/10.0)
+        fetch("/get-proxies")
+        .then(function (response) {
+            return response.json()
+        })
+        .then(function (data) {
+            ScrapeSite(maxPage, data["proxies"])
+        })
+        .catch(function (error) {
+            console.log(error)
+        })
+    }
+}
+
+function ScrapeSite(maxPage, proxies) {
+    let pageChunks = Math.ceil(maxPage/900)
+    let sec = 0
+    var timer = setInterval(function percentageUpdater() {
+        document.getElementById("image-prep").innerText = "Collecting the reviews, we are about " + ((sec * 100 + 1) / (Math.ceil(pageChunks / 5) * 120)).toFixed(0) + "% done."
+        if ((sec + 2) === (Math.ceil(pageChunks / 5) * 120))
+        {
+            document.getElementById("image-prep").innerText = "Collecting the reviews, we are about " + (((sec + 1) * 100) / (Math.ceil(pageChunks / 5) * 120)).toFixed(0) + "% done."
+            clearInterval(timer)
+        }
+        sec++
+    }, 250)
+
+    for(let page = 0; page < pageChunks; page++)
+    {
+        fetch("/scraper", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({"proxies": proxies, "page-start": (page * 900 + 1), "page-interval": (((maxPage - page * 900) < 900) ? (maxPage - page * 900) : 900)}), })
+        .then(function (response) {
+            return response.json();
+        })
+        .then(function (data) {
+            clearInterval(timer)
+            document.getElementById("image-prep").innerText = "Complete!"
+            setLocationFilter()
+        })
+    }
+}
+
+function setLocationFilter() {
+    fetch('/location-filter')
+    .then(function (response) {
+        return response.json()
+    })
+    .then(function (data) {
+        var locationFilter = "<option value=''></option>"
+        let locations = data["locations"]
+        locations.forEach(location => {
+            locationFilter += "<option value='" + location + "'>" + getCaptializedWords(location) + "</option>"
+        })
+        document.getElementById("location-filter").innerHTML = locationFilter
+    })
+}
+
+function getCaptializedWords(words) {
+    let capitalizedWords = ""
+    for (let word of words.split(" "))
+    {
+        capitalizedWords += word.charAt(0).toUpperCase() + word.substring(1) + " "
+    }
+    return capitalizedWords
+}
+
 /*
     HOME
     Description: User must insert a valid link. If they do, then it sends request to flask to start creating all the necessary files
@@ -10,6 +123,8 @@ import axios from 'axios';
 export default function Home() {
     const navigate = useNavigate();
     const [content, setContent] = useState("")
+
+    document.getElementById("theme-color").setAttribute("content", "#1B263B") //error
 
     const handleClick = event => {
 
@@ -24,49 +139,8 @@ export default function Home() {
         navigate('/analyzer')
 
         // Sends the request to flask to start creating the files and if an error occurs it is displayed then brings the user back to the home screen
-        fetch("/url", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({url: urlpath}), //http request ?url=urlpath
-        }).then(response =>  response.json()).then(data => {
-            if(data["message"] !== "Collecting data from the US sites.")
-            {
-                alert(data["message"])
-                navigate('/')
-            }
-            else
-            {
-                document.getElementById("image-prep").innerText = data["message"]
-                fetch("/us-scraping").then(response => response.json()).then(data =>
-                {
-                    document.getElementById("image-prep").innerText = data["message"]
-                    fetch("/au-scraping").then(response => response.json()).then(data =>
-                    {
-                        document.getElementById("image-prep").innerText = data["message"]
-                        fetch("/ca-scraping").then(response => response.json()).then(data =>
-                        {
-                            document.getElementById("image-prep").innerText = data["message"]
-                            fetch("/in-scraping").then(response => response.json()).then(data =>
-                            {
-                                document.getElementById("image-prep").innerText = data["message"]
-                                fetch("/uk-scraping").then(response => response.json()).then(data =>
-                                {
-                                    document.getElementById("image-prep").innerText = data["message"]
-                                    fetch("/tutorial-csv").then(response => response.json()).then(data =>
-                                    {
-                                        document.getElementById("image-prep").innerText = data["message"]
-                                        fetch("/analyzed-csv").then(response => response.json()).then(data =>
-                                        {
-                                            document.getElementById("image-prep").innerText = data["message"]
-                                        })
-                                    })
-                                })
-                            })
-                        })
-                    })
-                })
-            }
-        });
+        SetUrl(urlpath, navigate)
+
     };
     
     return (
